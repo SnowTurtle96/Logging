@@ -10,7 +10,6 @@ loggingdirectory = '../Logging Directory'
 loggingfile = ''
 
 ziph = zipfile.ZipFile('logzipped.zip', 'w', zipfile.ZIP_DEFLATED)
-print(os.listdir(loggingdirectory))
 # Mode determines what action should be taken against log files once we hit 95% usage
 mode = 'ZIP'
 
@@ -20,24 +19,37 @@ logging.info(obj_Disk.total / (1024.0 ** 3))
 logging.info(obj_Disk.percent)
 
 
-def main():
-    if(mode == 'ZIP'):
+def main(self):
+    if(obj_Disk.percent > 99):
+        self.mode = 'WIPE'
+        actionToBeTaken()
+        logging.info("Disk space above 90%")
+        logging.info("Running actions to conserve space")
+
+    elif(obj_Disk.percent > 95):
+        self.mode = 'ROTATE'
+        actionToBeTaken()
+
+
+
+    elif (obj_Disk.percent > 90):
+        self.mode = 'ZIP'
+        actionToBeTaken()
+
+
+    else:
+        logging.info("Disk space within parameters, no action taken")
+
+
+
+
+def actionToBeTaken():
+    if (mode == 'ZIP'):
         print("ZIP")
         zipfunction(loggingdirectory, ziph)
 
-
-    if(mode == 'ROTATE'):
+    elif (mode == 'ROTATE'):
         print('Rotate')
-
-
-    if(mode == 'WIPE'):
-        print('WIPE')
-        for root, dirs, files in os.walk(loggingdirectory):
-            for file in files:
-                os.chdir(root)
-                os.remove(file)
-
-    if(obj_Disk.percent > 95):
         os.chdir('../Logging Directory')
         with open('sample.log', 'r') as f:
             lines = f.read().splitlines()
@@ -45,10 +57,12 @@ def main():
             last_line = lines[-1]
             print(last_line)
 
-
-    elif(obj_Disk.percent < 95):
-        print("Space limit not reached")
-
+    elif (mode == 'WIPE'):
+        print('WIPE')
+        for root, dirs, files in os.walk(loggingdirectory):
+            for file in files:
+                os.chdir(root)
+                os.remove(file)
 
 def zipfunction(path, zipf):
     for root, dirs, files in os.walk(path):
@@ -56,4 +70,8 @@ def zipfunction(path, zipf):
             os.chdir(root)
             zipf.write(file)
             os.remove(file)
+
+
+if __name__ == "__main__": main()
+
 
