@@ -13,7 +13,7 @@ ziph = zipfile.ZipFile('logzipped.zip', 'w', zipfile.ZIP_DEFLATED)
 # Mode determines what action should be taken against log files once we hit 95% usage
 mode = 'ZIP'
 
-obj_Disk = psutil.disk_usage('D:')
+obj_Disk = psutil.disk_usage('/home')
 
 logging.info(obj_Disk.total / (1024.0 ** 3))
 logging.info(obj_Disk.percent)
