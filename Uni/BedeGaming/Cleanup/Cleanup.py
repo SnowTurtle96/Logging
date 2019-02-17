@@ -5,6 +5,8 @@ import os
 import platform
 import sys
 import psutil
+import shutil
+
 
 loggingdirectory = '../Logging Directory'
 loggingfile = ''
@@ -19,28 +21,28 @@ logging.info(obj_Disk.total / (1024.0 ** 3))
 logging.info(obj_Disk.percent)
 
 
-def main(self):
+def main():
+    global mode
+
     if(obj_Disk.percent > 99):
-        self.mode = 'WIPE'
+        mode = 'ROTATE'
         actionToBeTaken()
         logging.info("Disk space above 90%")
         logging.info("Running actions to conserve space")
 
     elif(obj_Disk.percent > 95):
-        self.mode = 'ROTATE'
+        mode = 'ROTATE'
         actionToBeTaken()
 
 
 
     elif (obj_Disk.percent > 90):
-        self.mode = 'ZIP'
+        mode = 'ROTATE'
         actionToBeTaken()
 
 
     else:
         logging.info("Disk space within parameters, no action taken")
-
-
 
 
 def actionToBeTaken():
@@ -50,19 +52,13 @@ def actionToBeTaken():
 
     elif (mode == 'ROTATE'):
         print('Rotate')
-        os.chdir('../Logging Directory')
-        with open('sample.log', 'r') as f:
-            lines = f.read().splitlines()
-            f.close()
-            last_line = lines[-1]
-            print(last_line)
+        rotation()
+
 
     elif (mode == 'WIPE'):
         print('WIPE')
-        for root, dirs, files in os.walk(loggingdirectory):
-            for file in files:
-                os.chdir(root)
-                os.remove(file)
+        removeFilesFromDirectory()
+
 
 def zipfunction(path, zipf):
     for root, dirs, files in os.walk(path):
@@ -71,7 +67,21 @@ def zipfunction(path, zipf):
             zipf.write(file)
             os.remove(file)
 
+def rotation():
+    os.chdir('../Logging Directory')
+    with open('sample.log', 'r+') as f:
+        shutil.copy2('sample.log', 'sample2.log')
+        f.truncate(0)
+        f.close()
 
-if __name__ == "__main__": main()
+def removeFilesFromDirectory():
+    for root, dirs, files in os.walk(loggingdirectory):
+        for file in files:
+            os.chdir(root)
+            os.remove(file)
+
+
+if __name__ == "__main__":
+    main()
 
 
