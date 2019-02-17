@@ -32,20 +32,16 @@ class Cleanup():
 
     def rotation(self):
         os.chdir(loggingdirectory)
-        list_of_files = glob.glob(loggingdirectory)  # * means all if need specific format then *.csv
-        try:
-            sorted_files = sorted(list_of_files, key=os.path.getmtime)
-            print(sorted_files[-1])
-            print(sorted_files[-2])
-            print(sorted_files[-3])
-        except IndexError:
-            logging.error("No logs to delete")
+        files = glob.glob("*.log")
+        files.sort(key=os.path.getmtime)
+        for root, dirs, files in os.walk(loggingdirectory):
+            for file in files:
+                if(file == files[-1]):
+                    logging.info("Leave the latest log file intact")
+                else:
+                    os.chdir(root)
+                    os.remove(file)
 
-
-
-            # shutil.copy2(latest_file, 'log2.log')
-            # f.truncate(0)
-            # f.close()
 
     def removeFilesFromDirectory(self):
         for root, dirs, files in os.walk(loggingdirectory):
