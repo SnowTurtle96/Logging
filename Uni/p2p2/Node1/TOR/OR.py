@@ -51,7 +51,7 @@ class OR():
     def exchangeKeys(self):
         userInfo = logging.getLogger("1")
         userInfo.info("Exchanging Keys")
-        self.readInRecipitent()
+        self.loadInRecipitent()
 
         keyExchangeHop1 = {}
         keyExchangeHop1['CMD'] = "==CREATE=="
@@ -95,7 +95,7 @@ class OR():
         encryption = Encryption()
 
         global onionRoute
-        self.readInRecipitent()
+        self.loadInRecipitent()
         d3 = {"cmd": "MSG",  "msg": msg}
         print(d3)
         print("Recipitent port or IP")
@@ -112,7 +112,7 @@ class OR():
 
         self.onionDict = token1
 
-    def readInRecipitent(self):
+    def loadInRecipitent(self):
         print("Recipitent read in")
         reciever = open("messagingPartner.json", "r")
         reciever = reciever.read()

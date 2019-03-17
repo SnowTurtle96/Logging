@@ -1,12 +1,8 @@
-import os
-
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.backends.openssl import backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.primitives import padding as padding1
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
+import logging
 
 
 class Encryption:
@@ -16,6 +12,7 @@ class Encryption:
     plaintext = ''
 
     def generate_keys(self):
+        logging.info("Generating our asymmetric public and private key")
         private_key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=4096,
@@ -26,9 +23,11 @@ class Encryption:
         self.save_key(private_key, "privatekey")
 
     def getPrivateKey(self):
+        logging.info("Retrieving our asymmetric private key")
         return self.private_key
 
     def getPublicKey(self):
+        logging.info("Retreiving our asymmetric public key")
         pem_public_key = self.public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo)
@@ -42,6 +41,7 @@ class Encryption:
 
 
     def save_key(self, key, filename):
+        logging.info("Saving our public/private key to file")
         pem = key.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.TraditionalOpenSSL,
@@ -53,12 +53,7 @@ class Encryption:
 
 
     def encrypt(self, key, message):
-        # key_file = open("publickey", "rb")
-        # data = key_file.read()
-        # data.decode('utf-8')
-        # print(data)
-        # message.encode("utf-8")
-        # print(message)
+        logging.info("Encrypting a message with asymmetric key")
         key = key.encode("utf-8")
 
         public_key = load_pem_public_key(key, default_backend())
@@ -75,6 +70,7 @@ class Encryption:
 
 
     def decrypt(self, key, message):
+        logging.info("Decrypting a message with asymmetric key")
         with open("privatekey", "rb") as key_file:
             private_key = serialization.load_pem_private_key(
             key_file.read(),
@@ -91,25 +87,6 @@ class Encryption:
 
         return message
 
-    def generateSymmetricKey(self):
-        key = os.urandom(32)
-        iv = os.urandom(16)
-
-        return iv, key
-
-    def symmetricEncryption(self, iv, key, message):
-        cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=backend)
-        encryptor = cipher.encryptor()
-        ct = encryptor.update(message) + encryptor.finalize()
-        return ct
-
-    def symmetricDecrypt(self, iv, key,  msg):
-        decryptor = Cipher(
-            algorithms.AES(key),
-            modes.CTR(iv),
-            backend=default_backend()
-        ).decryptor()
-        return decryptor.update(msg) + decryptor.finalize()
 
 
 
